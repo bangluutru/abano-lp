@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABANO | Design for Free Motion - Wearable Care</title>
+    <meta name="description" content="ABANO - Trang phục hỗ trợ sức khỏe và vận động dành cho tuổi 50+. Ứng dụng công nghệ Bio-signaling Ceramic và cơ chế CISS.">
+    
+    <!-- Google Fonts: Montserrat & Nunito Sans (Alternative for Avenir Next) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            900: '#071D49', // Deep Navy (Primary)
+                            800: '#152C5B',
+                        },
+                        powder: {
+                            100: '#D1DDE6', // Powder Blue (Secondary)
+                            50: '#F5F8FA',
+                        },
+                        accent: {
+                            yellow: '#FFC845', // Light Yellow
+                        },
+                        graphite: '#333333',
+                    },
+                    fontFamily: {
+                        sans: ['"Nunito Sans"', 'sans-serif'],
+                        heading: ['"Montserrat"', 'sans-serif'],
+                    },
+                    container: {
+                        center: true,
+                        padding: '1.5rem',
+                        screens: {
+                            xl: '1200px',
+                        },
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(7, 29, 73, 0.08)',
+                        'lift': '0 10px 25px -5px rgba(7, 29, 73, 0.12)',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
+    <style>
+        /* Base styles */
+        body {
+            color: #333333;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Blur Header */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(7, 29, 73, 0.05);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1DDE6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #071D49;
+        }
+
+        /* Accordion Transition */
+        .accordion-content {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .accordion-content.active {
+            max-height: 500px; /* Arbitrary large number */
+            opacity: 1;
+        }
+        
+        /* Icon Rotation */
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-btn[aria-expanded="true"] .accordion-icon {
+            transform: rotate(45deg);
+        }
+
+        /* Smooth reveal animation classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Chat Widget Styles */
+        .chat-widget-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .chat-window {
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            margin-bottom: 16px;
+            transform-origin: bottom right;
+            transition: all 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 0;
+            transform: scale(0.9) translateY(20px);
+            pointer-events: none;
+            border: 1px solid #e5e7eb;
+        }
+
+        .chat-window.open {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: all;
+        }
+
+        .chat-header {
+            background: #071D49;
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #F5F8FA;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .message.user {
+            background: #071D49;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-input-area {
+            padding: 12px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: #ccc;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+            margin: 0 2px;
+        }
+        
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* Markdown-like styling for AI response */
+        .message.bot strong { font-weight: 700; color: #071D49; }
+        .message.bot ul { margin-left: 16px; list-style-type: disc; margin-top: 4px; margin-bottom: 4px; }
+        .message.bot li { margin-bottom: 2px; }
+
+    </style>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Markdown Parser (Marked) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body class="bg-white text-graphite font-sans">
+
+    <!-- 0. Top Announcement Bar -->
+    <div class="bg-navy-900 text-white text-xs py-2 text-center font-medium tracking-wide">
+        Miễn phí vận chuyển toàn quốc cho đơn hàng trải nghiệm đầu tiên.
+    </div>
+
+    <!-- 0. Header -->
+    <header id="main-header" class="fixed w-full top-[32px] z-50 transition-all duration-300">
+        <div class="container mx-auto flex justify-between items-center h-20">
+            <!-- Logo -->
+            <a href="#" class="font-heading font-bold text-2xl tracking-wider text-navy-900 z-50">
+                ABANO
+            </a>
+
+            <!-- Desktop Nav -->
+            <nav class="hidden lg:flex items-center gap-8 font-medium text-sm text-navy-900">
+                <a href="#concept" class="hover:text-opacity-70 transition-colors">Khái niệm</a>
+                <a href="#technology" class="hover:text-opacity-70 transition-colors">Công nghệ CISS</a>
+                <a href="#products" class="hover:text-opacity-70 transition-colors">Sản phẩm</a>
+                <a href="#segmentation" class="hover:text-opacity-70 transition-colors">Dành cho ai</a>
+                <a href="#faq" class="hover:text-opacity-70 transition-colors">FAQ</a>
+            </nav>
+
+            <!-- Actions -->
+            <div class="hidden lg:flex items-center gap-4">
+                <button class="text-navy-900 hover:text-opacity-70 transition-colors">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+                <a href="#contact" class="px-5 py-2.5 border border-navy-900 rounded text-sm font-semibold text-navy-900 hover:bg-navy-900 hover:text-white transition-all">
+                    Đặt lịch tư vấn
+                </a>
+                <a href="#lead-form" class="px-5 py-2.5 bg-accent-yellow rounded text-sm font-bold text-navy-900 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-navy-900"></i> AI Health Scan
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="lg:hidden z-50 text-navy-900">
+                <i data-lucide="menu" class="w-7 h-7"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobile-menu" class="fixed inset-0 bg-white z-40 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center gap-8 text-lg font-heading font-medium text-navy-900 lg:hidden">
+            <a href="#concept" class="mobile-link">Khái niệm</a>
+            <a href="#technology" class="mobile-link">Công nghệ CISS</a>
+            <a href="#products" class="mobile-link">Sản phẩm</a>
+            <a href="#segmentation" class="mobile-link">Dành cho ai</a>
+            <a href="#faq" class="mobile-link">FAQ</a>
+            <div class="h-px w-12 bg-gray-200"></div>
+            <a href="#contact" class="mobile-link text-sm">Đặt lịch tư vấn</a>
+            <a href="#lead-form" class="mobile-link text-sm font-bold text-accent-yellow-600 flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4"></i> AI Health Scan</a>
+        </div>
+    </header>
+
+    <!-- 1. Hero Section -->
+    <section class="relative h-screen min-h-[700px] w-full flex items-center justify-center overflow-hidden bg-gray-100">
+        <!-- Background Image/Video Placeholder -->
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1544367563-12123d8965cd?q=80&w=2070&auto=format&fit=crop" alt="Người đàn ông trung niên thư giãn" class="w-full h-full object-cover opacity-90">
+            <!-- Overlay Gradient for text readability -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/80 via-white/40 to-transparent sm:bg-gradient-to-r sm:from-white/90 sm:via-transparent"></div>
+        </div>
+
+        <div class="container relative z-10 pt-20">
+            <div class="max-w-2xl reveal active">
+                <span class="inline-block py-1 px-3 border border-navy-900/30 rounded-full text-xs font-bold text-navy-900 uppercase tracking-widest mb-6 bg-white/50 backdrop-blur-sm">Wearable Care</span>
+                
+                <h1 class="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-navy-900 leading-tight mb-6">
+                    Tối ưu hóa nền tảng sinh học. <br>
+                    <span class="font-light italic">Hỗ trợ thăng bằng.</span>
+                </h1>
+                
+                <p class="text-lg md:text-xl text-graphite mb-8 leading-relaxed max-w-lg">
+                    Sự kết hợp giữa thiết kế công thái học và vật liệu Bio-signaling Ceramic, vận dụng lăng kính khoa học CISS để hỗ trợ giấc ngủ và vận động hằng ngày.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 mb-10">
+                    <button onclick="document.getElementById('chat-toggle-btn').click()" class="px-8 py-4 bg-navy-900 text-white rounded font-bold hover:bg-navy-800 transition-colors text-center shadow-lg flex items-center justify-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-accent-yellow"></i> Hỏi Trợ lý AI
+                    </button>
+                    <a href="#products" class="px-8 py-4 bg-white border border-navy-900 text-navy-900 rounded font-bold hover:bg-gray-50 transition-colors text-center">
+                        Xem bộ sưu tập
+                    </a>
+                </div>
+
+                <!-- Trust Chips -->
+                <div class="flex flex-wrap gap-4 md:gap-8 text-sm font-semibold text-navy-900/80">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="feather" class="w-4 h-4"></i> Thiết kế cho 50+
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="sun" class="w-4 h-4"></i> Thoải mái 24/7
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Minh bạch
+                    </div>
+                </div>
+                
+                <p class="mt-4 text-[10px] text-gray-500 italic max-w-md">
+                    *Sản phẩm hỗ trợ sức khỏe, không thay thế chẩn đoán hay điều trị y khoa.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Credibility Strip -->
+    <section class="py-10 bg-powder-50 border-b border-gray-100">
+        <div class="container">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+                <div class="flex flex-col items-center gap-3 group cursor-default">
+                    <div class="p-3 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all text-navy-900">
+                        <i data-lucide="microscope" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide text-gray-600">R&D Vật liệu</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 group cursor-default">
+                    <div class="p-3 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all text-navy-900">
+                        <i data-lucide="shirt" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide text-gray-600">Thiết kế Wearable</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 group cursor-default">
+                    <div class="p-3 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all text-navy-900">
+                        <i data-lucide="infinity" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide text-gray-600">Độ bền cao</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 group cursor-default">
+                    <div class="p-3 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all text-navy-900">
+                        <i data-lucide="message-square-heart" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide text-gray-600">Lắng nghe user</span>
+                </div>
+                <div class="flex flex-col items-center gap-3 group cursor-default">
+                    <div class="p-3 bg-white rounded-full shadow-sm group-hover:shadow-md transition-all text-navy-900">
+                        <i data-lucide="user-check" class="w-6 h-6"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide text-gray-600">Quy trình 2-Key</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Problem Section -->
+    <section id="concept" class="py-20 md:py-28">
+        <div class="container">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                <h2 class="font-heading text-3xl md:text-4xl font-bold text-navy-900 mb-6">Khi sự nghỉ ngơi thông thường là chưa đủ.</h2>
+                <p class="text-lg text-gray-600">Cơ thể chúng ta cần nhiều hơn một giấc ngủ đơn thuần để thực sự hồi phục ở cấp độ tế bào.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="bg-white p-8 rounded-2xl shadow-soft hover:shadow-lift transition-all duration-300 border border-gray-100 reveal">
+                    <div class="w-12 h-12 bg-powder-100 rounded-full flex items-center justify-center text-navy-900 mb-6">
+                        <i data-lucide="moon" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-navy-900 mb-4">Giấc ngủ chưa sâu</h3>
+                    <p class="text-gray-600 leading-relaxed">Bạn ngủ đủ giờ nhưng thức dậy vẫn thấy cơ thể nặng nề, thiếu sự sảng khoái cần thiết để bắt đầu ngày mới.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-8 rounded-2xl shadow-soft hover:shadow-lift transition-all duration-300 border border-gray-100 reveal" style="transition-delay: 100ms;">
+                    <div class="w-12 h-12 bg-powder-100 rounded-full flex items-center justify-center text-navy-900 mb-6">
+                        <i data-lucide="battery-warning" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-navy-900 mb-4">Hồi phục chậm</h3>
+                    <p class="text-gray-600 leading-relaxed">Những cơn mỏi sau vận động hoặc làm việc kéo dài lâu hơn trước đây, khiến bạn ngại di chuyển.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-8 rounded-2xl shadow-soft hover:shadow-lift transition-all duration-300 border border-gray-100 reveal" style="transition-delay: 200ms;">
+                    <div class="w-12 h-12 bg-powder-100 rounded-full flex items-center justify-center text-navy-900 mb-6">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-navy-900 mb-4">Cảm giác chông chênh</h3>
+                    <p class="text-gray-600 leading-relaxed">Sự vững chãi và thăng bằng tự nhiên giảm dần theo tuổi tác, ảnh hưởng đến sự tự tin khi đi lại.</p>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center max-w-2xl mx-auto reveal">
+                <p class="text-xl font-medium text-navy-900 italic">
+                    "Một phần câu chuyện nằm ở cách tế bào quản lý dòng năng lượng và stress oxy hóa. Tại ABANO, chúng tôi nhìn vấn đề qua lăng kính của điện tử."
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. CISS Technology -->
+    <section id="technology" class="py-20 bg-navy-900 text-white overflow-hidden relative">
+        <!-- Abstract BG Decoration -->
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-white opacity-5 -skew-x-12 transform translate-x-20"></div>
+
+        <div class="container relative z-10">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                
+                <!-- Left: Content -->
+                <div class="reveal">
+                    <span class="text-accent-yellow font-bold tracking-widest text-xs uppercase mb-2 block">Khoa học nền tảng</span>
+                    <h2 class="font-heading text-3xl md:text-4xl font-bold mb-6">Hiệu ứng CISS là gì?</h2>
+                    <p class="text-powder-100 text-lg mb-8 leading-relaxed">
+                        <strong>CISS = Chiral Induced Spin Selectivity</strong> (Sự chọn lọc Spin cảm ứng bởi cấu trúc xoắn).
+                        <br><br>
+                        Trong tự nhiên, hiệu quả vận chuyển năng lượng phụ thuộc vào trật tự. Hãy tưởng tượng một 'làn đường ưu tiên' nơi các điện tử di chuyển trật tự hơn nhờ cấu trúc xoắn (Chiral). Đây là cơ chế sinh học giúp giảm thiểu sự 'hỗn loạn' ở cấp độ tế bào.
+                    </p>
+
+                    <!-- Accordion Dark Theme -->
+                    <div class="space-y-4">
+                        <!-- Item 1 -->
+                        <div class="border-b border-white/20 pb-2">
+                            <button class="accordion-btn w-full flex justify-between items-center py-3 text-left focus:outline-none" aria-expanded="false" onclick="toggleAccordion(this)">
+                                <span class="font-heading font-semibold text-white">DNA & Protein dẫn truyền như thế nào?</span>
+                                <i data-lucide="plus" class="accordion-icon w-5 h-5 text-accent-yellow"></i>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="text-powder-100/80 py-2 text-sm leading-relaxed">
+                                    Các phân tử sinh học trong cơ thể thường có cấu trúc xoắn. Khi cấu trúc này ổn định, dòng điện sinh học di chuyển hiệu quả hơn.
+                                </p>
+                            </div>
+                        </div>
+                         <!-- Item 2 -->
+                         <div class="border-b border-white/20 pb-2">
+                            <button class="accordion-btn w-full flex justify-between items-center py-3 text-left focus:outline-none" aria-expanded="false" onclick="toggleAccordion(this)">
+                                <span class="font-heading font-semibold text-white">Stress oxy hóa (ROS) là gì?</span>
+                                <i data-lucide="plus" class="accordion-icon w-5 h-5 text-accent-yellow"></i>
+                            </button>
+                            <div class="accordion-content">
+                                <p class="text-powder-100/80 py-2 text-sm leading-relaxed">
+                                    Là sự mất cân bằng giữa các gốc tự do và chất chống oxy hóa. CISS gợi ý một cơ chế vật lý để hỗ trợ giảm thiểu sự hình thành gốc tự do ngay từ đầu.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Diagram (CSS Visual) -->
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 reveal" style="transition-delay: 200ms;">
+                    <h3 class="font-heading font-bold text-xl mb-8 text-center">Sơ đồ 3 Bước CISS</h3>
+                    
+                    <div class="relative flex flex-col gap-8">
+                        <!-- Line connecting steps -->
+                        <div class="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-accent-yellow via-white/20 to-transparent"></div>
+
+                        <!-- Step 1 -->
+                        <div class="flex gap-6 items-start">
+                            <div class="w-12 h-12 rounded-full bg-navy-800 border border-accent-yellow flex items-center justify-center shrink-0 z-10 text-accent-yellow font-bold">1</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Cấu trúc xoắn (Chiral)</h4>
+                                <p class="text-sm text-powder-100/70">Đóng vai trò như bộ lọc tự nhiên.</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex gap-6 items-start">
+                            <div class="w-12 h-12 rounded-full bg-navy-800 border border-white/20 flex items-center justify-center shrink-0 z-10 text-white font-bold">2</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Dòng Electron trật tự</h4>
+                                <p class="text-sm text-powder-100/70">Các điện tử di chuyển cùng chiều xoay (spin).</p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="flex gap-6 items-start">
+                            <div class="w-12 h-12 rounded-full bg-navy-800 border border-white/20 flex items-center justify-center shrink-0 z-10 text-white font-bold">3</div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Hỗ trợ giảm 'rò rỉ'</h4>
+                                <p class="text-sm text-powder-100/70">Hạn chế hình thành gốc tự do (ROS) không mong muốn.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-white/10 text-center">
+                        <a href="#lead-form" class="inline-flex items-center gap-2 text-accent-yellow font-bold hover:text-white transition-colors">
+                            Nhận tài liệu chi tiết 1 trang <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. How It Works -->
+    <section class="py-20 bg-white">
+        <div class="container">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-heading text-3xl md:text-4xl font-bold text-navy-900">Cơ chế hỗ trợ của ABANO</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Step 1 -->
+                <div class="p-6 bg-powder-50 rounded-xl hover:bg-powder-100 transition-colors cursor-default text-center reveal">
+                    <span class="block text-4xl mb-4">😌</span>
+                    <h4 class="font-bold text-navy-900 mb-2">1. Tiếp xúc & Thoải mái</h4>
+                    <p class="text-sm text-gray-600">Vật liệu Bio-signaling Ceramic tạo môi trường nhiệt dễ chịu.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="p-6 bg-powder-50 rounded-xl hover:bg-powder-100 transition-colors cursor-default text-center reveal" style="transition-delay: 100ms;">
+                    <span class="block text-4xl mb-4">⚖️</span>
+                    <h4 class="font-bold text-navy-900 mb-2">2. Hỗ trợ cân bằng</h4>
+                    <p class="text-sm text-gray-600">Hỗ trợ điều hòa điện thế bề mặt theo nguyên lý CISS.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="p-6 bg-powder-50 rounded-xl hover:bg-powder-100 transition-colors cursor-default text-center reveal" style="transition-delay: 200ms;">
+                    <span class="block text-4xl mb-4">🔋</span>
+                    <h4 class="font-bold text-navy-900 mb-2">3. Tăng 'Readiness'</h4>
+                    <p class="text-sm text-gray-600">Cảm giác nhẹ nhàng hơn khi thức dậy.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="p-6 bg-powder-50 rounded-xl hover:bg-powder-100 transition-colors cursor-default text-center reveal" style="transition-delay: 300ms;">
+                    <span class="block text-4xl mb-4">🏃</span>
+                    <h4 class="font-bold text-navy-900 mb-2">4. Tín hiệu vận động</h4>
+                    <p class="text-sm text-gray-600">Tăng cảm nhận cơ thể (proprioception) để vận động tự tin.</p>
+                </div>
+            </div>
+
+            <!-- Mini Disclaimer Box -->
+            <div class="mt-12 p-6 border border-gray-200 rounded-lg bg-gray-50 max-w-3xl mx-auto">
+                <h5 class="font-bold text-navy-900 mb-2 flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4"></i> ABANO cam kết minh bạch:
+                </h5>
+                <ul class="grid md:grid-cols-2 gap-2 text-sm text-gray-600 list-disc list-inside">
+                    <li>Không thay thế thuốc hay phẫu thuật.</li>
+                    <li>Không dùng để chẩn đoán y khoa.</li>
+                    <li>Không hứa hẹn chữa khỏi bệnh lý.</li>
+                    <li>Hiệu quả phụ thuộc vào đáp ứng cơ địa.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Products -->
+    <section id="products" class="py-20 bg-gray-50">
+        <div class="container">
+            <div class="mb-12 text-center reveal">
+                <h2 class="font-heading text-3xl md:text-4xl font-bold text-navy-900 mb-6">Chọn giải pháp theo mục tiêu</h2>
+                
+                <!-- Filter Chips -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button class="filter-chip active px-5 py-2 rounded-full text-sm font-semibold bg-navy-900 text-white transition-all shadow-sm">Tất cả</button>
+                    <button class="filter-chip px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 hover:bg-gray-100 transition-all border border-gray-200">Ngủ ngon</button>
+                    <button class="filter-chip px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 hover:bg-gray-100 transition-all border border-gray-200">Hồi phục</button>
+                    <button class="filter-chip px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 hover:bg-gray-100 transition-all border border-gray-200">Thăng bằng</button>
+                    <button class="filter-chip px-5 py-2 rounded-full text-sm font-semibold bg-white text-gray-600 hover:bg-gray-100 transition-all border border-gray-200">Công sở</button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Product A -->
+                <div class="group bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-lift transition-all duration-300 reveal">
+                    <div class="relative h-64 overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=2080&auto=format&fit=crop" alt="Áo T-shirt ABANO" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-navy-900">Daily Care</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-heading text-xl font-bold text-navy-900 mb-1">T-shirt ABANO Basic</h3>
+                        <p class="text-sm text-gray-500 italic mb-4">Lớp bảo vệ thứ hai cho cơ thể nghỉ ngơi.</p>
+                        <ul class="space-y-2 mb-6 text-sm text-gray-600">
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Thoáng khí, hỗ trợ giấc ngủ sâu.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Giảm cảm giác dính dáp, bí bách.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Chất liệu mềm mại cho da lão hóa.</li>
+                        </ul>
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-2 border border-navy-900 text-navy-900 rounded font-bold text-sm hover:bg-gray-50">Xem chi tiết</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product B -->
+                <div class="group bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-lift transition-all duration-300 reveal" style="transition-delay: 100ms;">
+                    <div class="relative h-64 overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1626497764746-6dc36546b388?q=80&w=1926&auto=format&fit=crop" alt="Áo Polo ABANO" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-navy-900">Social Confidence</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-heading text-xl font-bold text-navy-900 mb-1">Polo ABANO Active</h3>
+                        <p class="text-sm text-gray-500 italic mb-4">Thanh lịch bên ngoài, hỗ trợ bên trong.</p>
+                        <ul class="space-y-2 mb-6 text-sm text-gray-600">
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Thiết kế chỉn chu đi làm, đi chơi.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Hỗ trợ giảm mỏi vai gáy.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Duy trì năng lượng suốt ngày dài.</li>
+                        </ul>
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-2 border border-navy-900 text-navy-900 rounded font-bold text-sm hover:bg-gray-50">Xem chi tiết</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product C -->
+                <div class="group bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-lift transition-all duration-300 reveal" style="transition-delay: 200ms;">
+                    <div class="relative h-64 overflow-hidden bg-gray-200">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop" alt="Wristband ABANO" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-navy-900">Balance Focus</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-heading text-xl font-bold text-navy-900 mb-1">Wristband ABANO</h3>
+                        <p class="text-sm text-gray-500 italic mb-4">Điểm tựa nhỏ cho sự thăng bằng lớn.</p>
+                        <ul class="space-y-2 mb-6 text-sm text-gray-600">
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Tác động vùng mạch máu cổ tay.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Hỗ trợ tín hiệu thần kinh - cơ.</li>
+                            <li class="flex items-start gap-2"><i data-lucide="check" class="w-4 h-4 text-accent-yellow mt-0.5"></i> Dễ dàng đeo mọi lúc.</li>
+                        </ul>
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-2 border border-navy-900 text-navy-900 rounded font-bold text-sm hover:bg-gray-50">Xem chi tiết</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Segmentation (Dành cho ai) -->
+    <section id="segmentation" class="py-20 bg-white border-b border-gray-100">
+        <div class="container">
+            <h2 class="font-heading text-3xl font-bold text-navy-900 mb-12 text-center reveal">Giải pháp thiết kế riêng cho bạn</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                <!-- Seg 1 -->
+                <div class="px-4 py-4 text-center reveal">
+                    <h3 class="font-bold text-lg text-navy-900 mb-2">Người 50+ muốn vận động</h3>
+                    <p class="text-gray-600 text-sm mb-4">Sợ té ngã, ngại vận động do cơ thể cứng nhắc.</p>
+                    <p class="text-sm font-semibold text-accent-yellow-600">Gợi ý: Bộ Polo + Wristband</p>
+                </div>
+                <!-- Seg 2 -->
+                <div class="px-4 py-4 text-center reveal" style="transition-delay: 100ms;">
+                    <h3 class="font-bold text-lg text-navy-900 mb-2">Người đang hồi phục</h3>
+                    <p class="text-gray-600 text-sm mb-4">Mệt mỏi kéo dài sau đau mỏi, ngủ không lại sức.</p>
+                    <p class="text-sm font-semibold text-accent-yellow-600">Gợi ý: T-shirt (mặc ngủ)</p>
+                </div>
+                <!-- Seg 3 -->
+                <div class="px-4 py-4 text-center reveal" style="transition-delay: 200ms;">
+                    <h3 class="font-bold text-lg text-navy-900 mb-2">Người làm việc căng thẳng</h3>
+                    <p class="text-gray-600 text-sm mb-4">Căng thẳng thần kinh, vai gáy co cứng do ngồi lâu.</p>
+                    <p class="text-sm font-semibold text-accent-yellow-600">Gợi ý: Wristband + Polo</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-sm text-gray-500 mb-2">Bạn là bác sĩ hoặc chuyên gia trị liệu?</p>
+                <a href="#b2b" class="text-navy-900 font-bold underline hover:text-accent-yellow transition-colors">Xem trang dành cho Đối tác B2B</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. Materials & Craft -->
+    <section class="py-20 bg-powder-50 relative overflow-hidden">
+        <div class="container relative z-10 flex flex-col lg:flex-row items-center gap-12">
+            <div class="lg:w-1/2 reveal">
+                <img src="https://images.unsplash.com/photo-1517254456976-ee8682999cdf?q=80&w=2070&auto=format&fit=crop" alt="Cận cảnh sợi vải" class="rounded-lg shadow-xl grayscale hover:grayscale-0 transition-all duration-700">
+            </div>
+            <div class="lg:w-1/2 reveal">
+                <h2 class="font-heading text-3xl font-bold text-navy-900 mb-6">Triết lý 'Quiet Confidence'</h2>
+                <p class="text-lg text-gray-700 mb-6">
+                    Không chỉ là vải, đó là ma trận các hạt <strong>Bio-signaling Ceramic</strong> được tích hợp vào sợi, hoạt động bền bỉ không suy giảm theo thời gian.
+                </p>
+                <h4 class="font-bold text-navy-900 mb-4">Tiêu chuẩn 5 Không của ABANO:</h4>
+                <ul class="space-y-2 text-gray-600">
+                    <li class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-navy-900"></div> Không kích ứng da.</li>
+                    <li class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-navy-900"></div> Không phai màu độc hại.</li>
+                    <li class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-navy-900"></div> Không mất tính năng khi giặt.</li>
+                    <li class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-navy-900"></div> Không chi tiết thừa gây cộm.</li>
+                    <li class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-navy-900"></div> Không gò bó chuyển động.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. B2B & 11. FAQ -->
+    <section id="faq" class="py-20 bg-white">
+        <div class="container max-w-4xl">
+            <h2 class="font-heading text-3xl font-bold text-navy-900 mb-12 text-center reveal">Câu hỏi thường gặp</h2>
+            
+            <div class="space-y-4 reveal">
+                <!-- FAQ 1 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="accordion-btn w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 text-left" onclick="toggleAccordion(this)">
+                        <span class="font-semibold text-navy-900">ABANO có phải là thiết bị y tế không?</span>
+                        <i data-lucide="plus" class="accordion-icon w-5 h-5 text-gray-400"></i>
+                    </button>
+                    <div class="accordion-content bg-white">
+                        <div class="p-4 text-gray-600 text-sm">
+                            Không. ABANO là trang phục hỗ trợ sức khỏe (wellness wear), không dùng để chẩn đoán hay điều trị bệnh.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="accordion-btn w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 text-left" onclick="toggleAccordion(this)">
+                        <span class="font-semibold text-navy-900">Tôi nên dùng bao lâu để thấy hiệu quả?</span>
+                        <i data-lucide="plus" class="accordion-icon w-5 h-5 text-gray-400"></i>
+                    </button>
+                    <div class="accordion-content bg-white">
+                        <div class="p-4 text-gray-600 text-sm">
+                            Trải nghiệm thay đổi tùy cơ địa. Chúng tôi khuyến khích sử dụng liên tục ít nhất 14 ngày (8-10 tiếng/ngày, tốt nhất là qua đêm) để cảm nhận sự thay đổi.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <button class="accordion-btn w-full flex justify-between items-center p-4 bg-gray-50 hover:bg-gray-100 text-left" onclick="toggleAccordion(this)">
+                        <span class="font-semibold text-navy-900">Sản phẩm có hết tác dụng sau khi giặt không?</span>
+                        <i data-lucide="plus" class="accordion-icon w-5 h-5 text-gray-400"></i>
+                    </button>
+                    <div class="accordion-content bg-white">
+                        <div class="p-4 text-gray-600 text-sm">
+                            Không. Công nghệ được tích hợp vào lõi sợi vật liệu, bền bỉ theo vòng đời sản phẩm.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 12. Final CTA Panel -->
+    <section class="py-20 bg-navy-900 text-white text-center">
+        <div class="container reveal">
+            <h2 class="font-heading text-3xl md:text-5xl font-bold mb-4">Đừng để sự mệt mỏi ngăn cản nhịp sống.</h2>
+            <p class="text-xl text-powder-100 mb-10 max-w-2xl mx-auto">Trải nghiệm công nghệ hỗ trợ từ ABANO ngay hôm nay.</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                <button class="px-8 py-4 bg-accent-yellow text-navy-900 rounded font-bold hover:bg-white transition-all shadow-lg transform hover:-translate-y-1">
+                    MUA NGAY - FREESHIP
+                </button>
+                <button onclick="document.getElementById('lead-form').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 border border-white text-white rounded font-bold hover:bg-white hover:text-navy-900 transition-all">
+                    TƯ VẤN MIỄN PHÍ
+                </button>
+            </div>
+            
+            <ul class="flex flex-wrap justify-center gap-6 text-sm text-powder-100/70">
+                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Không spam tin nhắn</li>
+                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Nhận tài liệu khoa học</li>
+                <li class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4"></i> Chỉ tư vấn nếu phù hợp</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 13. AI Lead Form -->
+    <section id="lead-form" class="py-20 bg-gray-50">
+        <div class="container max-w-4xl">
+            <div class="grid md:grid-cols-2 gap-8 items-stretch">
+                <!-- Form Input -->
+                <div class="bg-white p-8 md:p-10 rounded-2xl shadow-lift border-t-4 border-accent-yellow reveal">
+                    <h3 class="font-heading text-2xl font-bold text-navy-900 mb-2 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-accent-yellow"></i>
+                        ABANO AI Health Scan
+                    </h3>
+                    <p class="text-gray-600 text-sm mb-8">Nhận bản phân tích sức khỏe & gợi ý CISS cá nhân hóa ngay lập tức.</p>
+                    
+                    <form id="health-form" onsubmit="handleAiFormSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-navy-900 mb-1">Họ và tên</label>
+                            <input type="text" id="form-name" required class="w-full px-4 py-3 rounded border border-gray-300 focus:border-navy-900 focus:ring-1 focus:ring-navy-900 outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-navy-900 mb-1">Email</label>
+                            <input type="email" id="form-email" required class="w-full px-4 py-3 rounded border border-gray-300 focus:border-navy-900 focus:ring-1 focus:ring-navy-900 outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-navy-900 mb-1">Độ tuổi</label>
+                            <select id="form-age" class="w-full px-4 py-3 rounded border border-gray-300 focus:border-navy-900 outline-none bg-white">
+                                <option>40 - 50 tuổi</option>
+                                <option selected>50 - 60 tuổi</option>
+                                <option>Trên 60 tuổi</option>
+                                <option>Dưới 40 tuổi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-navy-900 mb-1">Vấn đề chính của bạn</label>
+                            <select id="form-goal" class="w-full px-4 py-3 rounded border border-gray-300 focus:border-navy-900 outline-none bg-white">
+                                <option value="Khó ngủ, ngủ không sâu giấc">Khó ngủ, ngủ không sâu giấc</option>
+                                <option value="Đau mỏi cơ bắp kéo dài, chậm hồi phục">Đau mỏi cơ bắp kéo dài, chậm hồi phục</option>
+                                <option value="Căng thẳng vai gáy, stress công việc">Căng thẳng vai gáy, stress công việc</option>
+                                <option value="Cảm giác mất thăng bằng, run tay nhẹ">Cảm giác mất thăng bằng, run tay nhẹ</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" id="ai-submit-btn" class="w-full py-4 mt-2 bg-navy-900 text-white font-bold rounded hover:bg-navy-800 transition-colors shadow-lg flex items-center justify-center gap-2">
+                            <span>PHÂN TÍCH NGAY VỚI AI</span>
+                            <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        </button>
+                        
+                        <p class="text-xs text-gray-400 text-center mt-4">
+                            Sử dụng Gemini AI để phân tích. Kết quả mang tính tham khảo, không thay thế chẩn đoán y khoa.
+                        </p>
+                    </form>
+                </div>
+
+                <!-- AI Result Display (Hidden initially) -->
+                <div id="ai-result-card" class="bg-navy-900 p-8 md:p-10 rounded-2xl shadow-lift text-white hidden flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-accent-yellow rounded-full mix-blend-multiply filter blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2"></div>
+                    
+                    <div id="ai-result-content" class="relative z-10 h-full flex flex-col">
+                        <!-- Content injected by JS -->
+                        <div class="flex-1 flex flex-col items-center justify-center text-center opacity-50 space-y-4">
+                            <i data-lucide="activity" class="w-16 h-16 text-powder-100"></i>
+                            <p class="text-powder-100">Kết quả phân tích sẽ hiển thị tại đây sau khi bạn điền thông tin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 14. Footer -->
+    <footer class="bg-white border-t border-gray-100 pt-16 pb-8">
+        <div class="container">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-1">
+                    <a href="#" class="font-heading font-bold text-2xl tracking-wider text-navy-900 block mb-4">
+                        ABANO
+                    </a>
+                    <p class="text-sm text-gray-600 mb-4">Design for free motion.<br>Thương hiệu tiên phong ứng dụng khoa học vật liệu vào chăm sóc sức khỏe chủ động.</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-navy-900 mb-4">Khám phá</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#technology" class="hover:text-navy-900">Công nghệ CISS</a></li>
+                        <li><a href="#products" class="hover:text-navy-900">Bộ sưu tập</a></li>
+                        <li><a href="#segmentation" class="hover:text-navy-900">Dành cho ai</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-navy-900 mb-4">Hỗ trợ</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-navy-900">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="hover:text-navy-900">Chính sách đổi trả</a></li>
+                        <li><a href="#" class="hover:text-navy-900">Liên hệ B2B</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-navy-900 mb-4">Liên hệ</h4>
+                    <p class="text-sm text-gray-600 mb-2">Hotline: 1900 xxxx</p>
+                    <p class="text-sm text-gray-600">Email: support@abano.vn</p>
+                    <div class="flex gap-4 mt-4 text-navy-900">
+                        <i data-lucide="facebook" class="w-5 h-5 cursor-pointer"></i>
+                        <i data-lucide="instagram" class="w-5 h-5 cursor-pointer"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-100 pt-8 text-center md:text-left">
+                <div class="p-4 bg-gray-50 rounded text-xs text-gray-500 leading-relaxed mb-4">
+                    <strong>Disclaimer:</strong> Nội dung trên website này chỉ mang tính chất cung cấp thông tin và không thay thế cho việc tư vấn, chẩn đoán hoặc điều trị y khoa chuyên nghiệp. Sản phẩm của ABANO là trang phục hỗ trợ, hiệu quả thực tế có thể khác nhau tùy thuộc vào cơ địa và tình trạng sức khỏe của mỗi người. Luôn tham khảo ý kiến bác sĩ cho các vấn đề y tế.
+                </div>
+                <p class="text-xs text-gray-400">© 2024 ABANO. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Widget HTML -->
+    <div class="chat-widget-container">
+        <!-- Chat Window -->
+        <div id="chat-window" class="chat-window">
+            <div class="chat-header">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-accent-yellow"></i>
+                    <span class="font-bold">Trợ lý Sức khỏe ABANO</span>
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:text-gray-300">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+                <div class="message bot">
+                    Xin chào! Tôi là trợ lý AI của ABANO. Tôi có thể giúp gì cho bạn về sức khỏe vận động, giấc ngủ hoặc công nghệ CISS?
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Hỏi về đau mỏi, mất ngủ..." class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-navy-900" onkeypress="handleChatKey(event)">
+                <button onclick="sendChatMessage()" class="bg-navy-900 text-white p-2 rounded hover:bg-navy-800 transition-colors">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toggle Button -->
+        <button id="chat-toggle-btn" onclick="toggleChat()" class="w-14 h-14 bg-navy-900 text-accent-yellow rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform cursor-pointer">
+            <i data-lucide="message-circle" class="w-7 h-7"></i>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- GEMINI API CONFIG ---
+        const apiKey = "AIzaSyBwjHBiEEJkX1EoyNhG5ErbhnNhHZzIBHU"; // Updated with your key
+
+        // --- GEMINI API HELPER FUNCTION ---
+        async function callGeminiAPI(prompt, systemInstruction = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('API Error');
+
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("Gemini Error:", error);
+                return "Xin lỗi, hiện tại hệ thống đang quá tải. Vui lòng thử lại sau.";
+            }
+        }
+
+        // --- CHAT WIDGET LOGIC ---
+        function toggleChat() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.classList.toggle('open');
+            // Auto focus input when opened
+            if (chatWindow.classList.contains('open')) {
+                setTimeout(() => document.getElementById('chat-input').focus(), 300);
+            }
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            const messagesContainer = document.getElementById('chat-messages');
+
+            if (!message) return;
+
+            // 1. Add User Message
+            appendMessage(message, 'user');
+            input.value = '';
+
+            // 2. Add Loading Indicator
+            const loadingId = appendLoading();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // 3. Call Gemini
+            const systemPrompt = `
+                Bạn là một chuyên gia tư vấn sức khỏe của thương hiệu ABANO. 
+                Bạn am hiểu sâu sắc về công nghệ CISS (Chiral Induced Spin Selectivity) và vật liệu Bio-signaling Ceramic.
+                Sản phẩm của ABANO: 
+                - T-shirt (Dành cho giấc ngủ, hồi phục, mặc lót).
+                - Polo (Dành cho đi làm, giao tiếp xã hội, vận động nhẹ).
+                - Wristband (Dành cho thăng bằng, ổn định tín hiệu thần kinh).
+                
+                Phong cách trả lời: Tinh tế, ngắn gọn, khoa học nhưng dễ hiểu (phong cách tối giản Nhật Bản).
+                Luôn trả lời bằng tiếng Việt.
+                Nếu người dùng hỏi về bệnh lý nghiêm trọng, hãy khuyên họ gặp bác sĩ.
+                Hãy gợi ý sản phẩm phù hợp dựa trên vấn đề của họ.
+            `;
+
+            const reply = await callGeminiAPI(message, systemPrompt);
+
+            // 4. Remove Loading & Add Bot Message
+            document.getElementById(loadingId).remove();
+            appendMessage(reply, 'bot');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function appendMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            // Simple Markdown parsing
+            div.innerHTML = marked.parse(text); 
+            document.getElementById('chat-messages').appendChild(div);
+        }
+
+        function appendLoading() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'message bot typing-indicator';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            document.getElementById('chat-messages').appendChild(div);
+            return id;
+        }
+
+
+        // --- HEALTH FORM AI LOGIC ---
+        async function handleAiFormSubmit(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('ai-submit-btn');
+            const originalBtnText = btn.innerHTML;
+            const resultCard = document.getElementById('ai-result-card');
+            const resultContent = document.getElementById('ai-result-content');
+            
+            // Collect Data
+            const name = document.getElementById('form-name').value;
+            const age = document.getElementById('form-age').value;
+            const goal = document.getElementById('form-goal').value;
+
+            // UI Loading State
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Đang phân tích...`;
+            
+            // Show result card skeleton
+            resultCard.classList.remove('hidden');
+            resultCard.classList.add('flex');
+            resultContent.innerHTML = `
+                <div class="flex-1 flex flex-col items-center justify-center text-center space-y-4 animate-pulse">
+                    <i data-lucide="brain-circuit" class="w-16 h-16 text-accent-yellow"></i>
+                    <p class="text-white font-medium">ABANO AI đang phân tích dữ liệu sinh học...</p>
+                    <p class="text-powder-100 text-xs">Đang đối chiếu với cơ sở dữ liệu CISS...</p>
+                </div>
+            `;
+            lucide.createIcons();
+
+            // Construct Prompt
+            const prompt = `
+                Tên khách hàng: ${name}
+                Độ tuổi: ${age}
+                Vấn đề chính: ${goal}
+
+                Hãy tạo một "Bản tóm tắt sức khỏe ABANO" ngắn gọn (khoảng 150 chữ) cho khách hàng này.
+                Cấu trúc:
+                1. **Lời chào & Đồng cảm**: (1 câu).
+                2. **Góc nhìn khoa học**: Giải thích ngắn gọn tại sao họ gặp vấn đề này dưới góc độ "mất cân bằng dòng điện sinh học" hoặc "stress oxy hóa".
+                3. **Giải pháp CISS**: Khuyên dùng sản phẩm nào của ABANO (T-shirt, Polo, hay Wristband) và tại sao.
+                4. **Wellness Mantra**: Một câu châm ngôn ngắn gọn tích cực cho họ.
+                
+                Định dạng: Sử dụng Markdown. Không dùng tiêu đề lớn, dùng bold cho các ý chính.
+            `;
+
+            // Call API
+            const analysis = await callGeminiAPI(prompt, "Bạn là chuyên gia phân tích dữ liệu sức khỏe của ABANO.");
+
+            // Render Result
+            resultContent.innerHTML = `
+                <div class="h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-4 border-b border-white/20 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-accent-yellow text-navy-900 flex items-center justify-center font-bold">
+                                ${name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg leading-tight">Hồ sơ Sức khỏe</h4>
+                                <span class="text-xs text-powder-100 opacity-80">${new Date().toLocaleDateString('vi-VN')}</span>
+                            </div>
+                        </div>
+                        <i data-lucide="check-circle-2" class="w-6 h-6 text-accent-yellow"></i>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto pr-2 text-sm text-powder-100 leading-relaxed space-y-2">
+                        ${marked.parse(analysis)}
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-white/20 text-center">
+                        <button onclick="document.getElementById('products').scrollIntoView({behavior: 'smooth'})" class="w-full py-3 bg-white text-navy-900 font-bold rounded hover:bg-powder-100 transition-colors">
+                            Xem sản phẩm phù hợp
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Reset UI
+            lucide.createIcons();
+            btn.disabled = false;
+            btn.innerHTML = originalBtnText;
+        }
+
+
+        // --- INITIALIZATION ---
+        lucide.createIcons();
+
+        // Mobile Menu Logic
+        const btnMenu = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const links = document.querySelectorAll('.mobile-link');
+
+        btnMenu.addEventListener('click', () => {
+            menu.classList.toggle('translate-x-full');
+        });
+
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('translate-x-full');
+            });
+        });
+
+        // Sticky Header
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('glass-header', 'py-0');
+                header.classList.remove('top-[32px]');
+                header.classList.add('top-0');
+            } else {
+                header.classList.remove('glass-header', 'py-0');
+                header.classList.remove('top-0');
+                header.classList.add('top-[32px]');
+            }
+        });
+
+        // Accordion
+        function toggleAccordion(button) {
+            const content = button.nextElementSibling;
+            const expanded = button.getAttribute('aria-expanded') === 'true';
+            document.querySelectorAll('.accordion-btn').forEach(b => {
+                b.setAttribute('aria-expanded', 'false');
+                b.nextElementSibling.classList.remove('active');
+            });
+            if (!expanded) {
+                button.setAttribute('aria-expanded', 'true');
+                content.classList.add('active');
+            }
+        }
+
+        // Reveal Animation
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+
+        // Filter Chips Demo
+        const chips = document.querySelectorAll('.filter-chip');
+        chips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chips.forEach(c => {
+                    c.classList.remove('bg-navy-900', 'text-white');
+                    c.classList.add('bg-white', 'text-gray-600');
+                });
+                chip.classList.remove('bg-white', 'text-gray-600');
+                chip.classList.add('bg-navy-900', 'text-white');
+            });
+        });
+    </script>
+</body>
+</html>
